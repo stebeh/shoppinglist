@@ -105,7 +105,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
     public static final String PREFS_USE_FILTERS = "use_filters";
     public static final boolean PREFS_USE_FILTERS_DEFAULT = false;
     public static final String PREFS_CURRENT_LIST_COMPLETE = "autocomplete_only_this_list";
-    public static final boolean PREFS_CURRENT_LIST_COMPLETE_DEFAULT = false;
+    public static final boolean PREFS_CURRENT_LIST_COMPLETE_DEFAULT = true;
     public static final String PREFS_SORT_PER_LIST = "perListSort";
     public static final boolean PREFS_SORT_PER_LIST_DEFAULT = false;
     public static final String PREFS_HOLO_SEARCH = "holosearch";
