@@ -2539,9 +2539,8 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
                         if (c != null) {
                             String itemName = c.getString(mStringItemsITEMNAME);
                             if (itemName != null) {
-                                ((AlertDialog) dialog).setMessage(String.format(
-                                        getResources().getString(R.string.delete_item_confirm).toString(),
-                                        itemName));
+                                ((AlertDialog) dialog).setMessage(
+                                        getResources().getString(R.string.delete_item_confirm, itemName));
                             }
                         }
                     }
