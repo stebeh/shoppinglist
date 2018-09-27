@@ -122,7 +122,7 @@ public class ShoppingItemsView extends ListView implements LoaderManager.LoaderC
 
     public int mMode = ShoppingActivity.MODE_IN_SHOP;
     private String mFilter;
-    private boolean mInSearch;
+    public boolean mInSearch;
     public int mModeBeforeSearch;
     public Cursor mCursorItems;
 
