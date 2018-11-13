@@ -68,7 +68,6 @@
 
     <application
         android:allowBackup="true"
-        android:backupAgent="ShoppingBackupAgent"
         android:icon="@drawable/ic_launcher_shoppinglist"
         android:label="@string/app_name"
         android:name=".ShoppingApplication"
