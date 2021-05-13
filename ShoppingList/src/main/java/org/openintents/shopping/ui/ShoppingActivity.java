@@ -557,6 +557,15 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
         toggleBoughtInputMethod = ((ShoppingApplication) getApplication()).dependencies().getToggleBoughtInputMethod(this, mItemsView);
     }
 
+    private void showInLockScreen(boolean enable) {
+        if (enable) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        }
+    }
+
     private Uri buildDefaultShoppingListUri(final int defaultShoppingList) {
         return Uri.withAppendedPath(Lists.CONTENT_URI,
                 String.valueOf(defaultShoppingList));
@@ -658,6 +667,9 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
             getWindow()
                     .addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+
+        showInLockScreen(sp.getBoolean(PreferenceActivity.PREFS_SHOWINLOCKSCREEN,
+                PreferenceActivity.PREFS_SHOWINLOCKSCREEN_DEFAULT));
 
         if (mItemsView != null) {
             if (sp.getBoolean(PreferenceActivity.PREFS_SHOW_PRICE,
