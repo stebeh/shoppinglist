@@ -212,6 +212,8 @@
     <string name="preference_perstoreprice_summary">Keep track of separate prices for each item at each store.</string>
     <string name="preference_screenlock_title">Disable screen lock</string>
     <string name="preference_screenlock_summary">Prevents the screen to be locked when checked.</string>
+    <string name="preference_showinlockscreen_title">Show in lockscreen</string>
+    <string name="preference_showinlockscreen_summary">Show the app when the screen is locked.</string>
     <string name="preference_usefilters_title">Filters</string>
     <string name="preference_usefilters_summary">Lists can be filtered by tags or stores.</string>
     <string name="preference_complete_by_list_title">Limit item name completion</string>

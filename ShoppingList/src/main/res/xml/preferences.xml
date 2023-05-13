@@ -92,6 +92,11 @@
                     android:summary="@string/preference_screenlock_summary"
                     android:title="@string/preference_screenlock_title" />
                 <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="showinlockscreen"
+                    android:summary="@string/preference_showinlockscreen_summary"
+                    android:title="@string/preference_showinlockscreen_title" />
+                <CheckBoxPreference
                     android:key="quickedit"
                     android:summaryOff="@string/preference_quickedit_off_summary"
                     android:summaryOn="@string/preference_quickedit_on_summary"

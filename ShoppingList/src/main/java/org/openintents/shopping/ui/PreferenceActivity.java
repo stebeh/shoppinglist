@@ -69,6 +69,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
     public static final boolean PREFS_SHOW_PRIORITY_DEFAULT = true;
     public static final String PREFS_SCREENLOCK = "screenlock";
     public static final boolean PREFS_SCREENLOCK_DEFAULT = false;
+    public static final String PREFS_SHOWINLOCKSCREEN = "showinlockscreen";
+    public static final boolean PREFS_SHOWINLOCKSCREEN_DEFAULT = false;
     public static final String PREFS_RESETQUANTITY = "resetquantity";
     public static final boolean PREFS_RESETQUANTITY_DEFAULT = false;
     public static final String PREFS_ADDFORBARCODE = "addforbarcode";
@@ -546,6 +548,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
                                                 PREFS_ADDFORBARCODE_DEFAULT);
                                         editor.putBoolean(PREFS_SCREENLOCK,
                                                 PREFS_SCREENLOCK_DEFAULT);
+                                        editor.putBoolean(PREFS_SHOWINLOCKSCREEN,
+                                                PREFS_SHOWINLOCKSCREEN_DEFAULT);
                                         editor.putBoolean(PREFS_QUICKEDITMODE,
                                                 PREFS_QUICKEDITMODE_DEFAULT);
                                         editor.putBoolean(PREFS_USE_FILTERS,
