@@ -743,7 +743,7 @@ public class ShoppingItemsView extends ListView implements LoaderManager.LoaderC
                 doUpdate = (oldstatus == ShoppingContract.Status.BOUGHT);
             }
 
-            if (doUpdate) {
+            if (true) {
                 final ContentValues values = new ContentValues();
                 values.put(ShoppingContract.Contains.STATUS, newstatus);
                 if (debug) {
