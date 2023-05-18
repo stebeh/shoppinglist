@@ -27,12 +27,14 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.OpenableColumns;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -776,20 +778,32 @@ public class ConvertCsvBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
         Log.i(TAG, "onActivityResult");
 
         switch (requestCode) {
             case REQUEST_CODE_PICK_FILE:
                 if (resultCode == RESULT_OK && data != null) {
-                    Uri documentUri = data.getData();
+                    Uri documentUri = null;
+                    if (Build.VERSION.SDK_INT < 19) {
+                        documentUri = data.getData();
+                    } else {
+                        documentUri = data.getData();
+                        final int takeFlags = data.getFlags()
+                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        try {
+                            getContentResolver().takePersistableUriPermission(documentUri, takeFlags);
+                        }
+                        catch (SecurityException e){
+                            e.printStackTrace();
+                        }
+                    }
                     if (documentUri != null) {
                         setFileUri(documentUri);
                     } else {
                         setFileUriUnknown();
                     }
-
                 }
                 break;
         }

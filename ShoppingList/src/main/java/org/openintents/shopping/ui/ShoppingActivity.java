@@ -197,7 +197,6 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
     private static final int MENU_ITEM_STORES = Menu.FIRST + 22;
     private static final int MENU_UNMARK_ALL_ITEMS = Menu.FIRST + 23;
     private static final int MENU_SYNC_WEAR = Menu.FIRST + 25;
-    private static final int MENU_CONVERT_CSV = Menu.FIRST + 26;
     private static final int MENU_DISTRIBUTION_START = Menu.FIRST + 100; // MUST BE LAST
     private static final int DIALOG_ABOUT = 1;
     // private static final int DIALOG_TEXT_ENTRY = 2;
@@ -1608,8 +1607,6 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
 
         menu.add(0, MENU_SYNC_WEAR, 0, R.string.sync_wear);
 
-        menu.add(0, MENU_CONVERT_CSV, 0, R.string.convert_csv);
-
         // Add distribution menu items last.
         mDistribution.onCreateOptionsMenu(menu);
 
@@ -1803,9 +1800,6 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
                 return true;
             case MENU_SYNC_WEAR:
                 mItemsView.pushItemsToWear();
-                return true;
-            case MENU_CONVERT_CSV:
-                startActivity(new Intent(this, ConvertCsvActivity.class).setData(mListUri));
                 return true;
             default:
                 break;
