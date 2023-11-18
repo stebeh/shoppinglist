@@ -44,7 +44,7 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 13;
 
     ShoppingDatabase(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(new DatabaseContext(context), DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     /**

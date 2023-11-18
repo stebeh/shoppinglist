@@ -1,5 +1,7 @@
 package org.openintents.shopping.ui;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,26 +10,40 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.provider.DocumentsContract;
+import android.support.v4.content.ContextCompat;
 import android.text.InputType;
 import android.text.method.KeyListener;
 import android.text.method.TextKeyListener;
+import android.util.Log;
 import android.widget.Toast;
+import android.provider.Settings;
 
 import org.openintents.shopping.R;
 import org.openintents.shopping.library.provider.ShoppingContract.Contains;
 import org.openintents.shopping.library.provider.ShoppingContract.Lists;
 import org.openintents.shopping.library.util.ShoppingUtils;
+import org.openintents.shopping.provider.ShoppingDatabase;
 import org.openintents.shopping.ui.widget.ShoppingItemsView;
 import org.openintents.util.BackupManagerWrapper;
 import org.openintents.util.IntentUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 public class PreferenceActivity extends android.preference.PreferenceActivity
         implements OnSharedPreferenceChangeListener {
@@ -71,6 +87,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
     public static final boolean PREFS_SCREENLOCK_DEFAULT = false;
     public static final String PREFS_SHOWINLOCKSCREEN = "showinlockscreen";
     public static final boolean PREFS_SHOWINLOCKSCREEN_DEFAULT = false;
+    public static final String PREFS_EXTERNALDB = "externaldb";
+    public static final boolean PREFS_EXTERNALDB_DEFAULT = false;
+    public static final String PREFS_EXTERNALDB_USED = "externaldb_used";
+    public static final boolean PREFS_EXTERNALDB_USED_DEFAULT = false;
+    public static final String PREFS_EXTERNALDB_PATH = "externaldb_path";
+    public static final String PREFS_EXTERNALDB_PATH_DEFAULT = "";
     public static final String PREFS_RESETQUANTITY = "resetquantity";
     public static final boolean PREFS_RESETQUANTITY_DEFAULT = false;
     public static final String PREFS_ADDFORBARCODE = "addforbarcode";
@@ -114,6 +136,9 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
     private static boolean mBackupManagerAvailable;
     private static boolean mFilterCompletionChanged;
 
+    static final private int ACTIVITY_CHOOSE_DB_PATH = 0;
+    static final private int ACTIVITY_FILEMGR_PERMISSION = 1;
+
     static {
         try {
             BackupManagerWrapper.checkAvailable();
@@ -125,6 +150,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
 
     private ListPreference mPrioSubtotal;
     private CheckBoxPreference mIncludesChecked;
+    private CheckBoxPreference mExternaldb;
     private ListPreference mPickItemsSort;
 
     public static int getFontSizeFromPrefs(Context context) {
@@ -455,6 +481,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
         mPickItemsSort = (ListPreference) findPreference(PREFS_PICKITEMS_SORTORDER);
 
         mIncludesChecked = (CheckBoxPreference) findPreference(PREFS_PRIOSUBINCLCHECKED);
+        mExternaldb = (CheckBoxPreference) findPreference(PREFS_EXTERNALDB);
 
         Preference layoutChoicePreference = findPreference("layout_choice");
         layoutChoicePreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -467,6 +494,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
         SharedPreferences shared = getPreferenceScreen().getSharedPreferences();
         updatePrioSubtotalSummary(shared);
         updatePickItemsSortPref(shared);
+        updatePathLabel(shared);
         resetAllSettings(shared);
     }
 
@@ -505,6 +533,203 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
         }
         if (key.equals(PREFS_CURRENT_LIST_COMPLETE)) {
             mFilterCompletionChanged = true;
+        }
+        if (key.equals(PREFS_EXTERNALDB)) {
+            final Boolean extDbSelected = prefs.getBoolean(PREFS_EXTERNALDB, PREFS_EXTERNALDB_DEFAULT);
+            final String dirPath = prefs.getString(PREFS_EXTERNALDB_PATH, PREFS_EXTERNALDB_PATH_DEFAULT);
+            if (extDbSelected) { // user selected external DB
+                // check and request file mgr permission if needed
+                if (!isFileManager()) {
+                    // request MANAGE ALL FILES permission (needed b.c. Sqlite uses native code)
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivityForResult(intent, ACTIVITY_FILEMGR_PERMISSION);
+                }
+                // check and request file path if needed
+                if (dirPath.equalsIgnoreCase(PREFS_EXTERNALDB_PATH_DEFAULT)) {
+                    // Let the user choose a file path and ask for permission to access it
+                    Uri initialUri = Uri.fromFile(Environment.getExternalStorageDirectory());
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
+                    }
+                    startActivityForResult(intent, ACTIVITY_CHOOSE_DB_PATH);
+                }
+            } else { // user selected internal DB
+                final Boolean extDbUsed = prefs.getBoolean(PREFS_EXTERNALDB_USED, PREFS_EXTERNALDB_USED_DEFAULT);
+                if (extDbUsed) { // if external DB is actually in use
+                    setInternalDb();
+                    askCopyDb(dirPath + File.separator + ShoppingDatabase.DATABASE_NAME,
+                              getApplicationInfo().dataDir + File.separator + "databases" +
+                              File.separator + ShoppingDatabase.DATABASE_NAME);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SharedPreferences prefs = getSharedPreferences(
+                "org.openintents.shopping_preferences", MODE_PRIVATE);
+        if (ACTIVITY_CHOOSE_DB_PATH == requestCode) {
+            if (resultCode == Activity.RESULT_OK) {
+                Uri uri = null;
+                if (data != null) {
+                    uri = data.getData();
+                    Log.d(TAG, "Received externaldb URI: " + uri);
+                    // Persist the permission across device restarts
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        final int takeFlags = data.getFlags()
+                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                    }
+                    // Translate to file path and store in preferences
+                    final String dirPath = uriToFilePath(this, uri);
+                    Editor editor = prefs.edit();
+                    editor.putString(PREFS_EXTERNALDB_PATH, dirPath);
+                    editor.apply();
+                }
+            } else { // user declined request
+                setInternalDb(); // revert to using internal DB
+            }
+        } else if (ACTIVITY_FILEMGR_PERMISSION == requestCode) {
+            if (!isFileManager()) { // user declined request
+                setInternalDb(); // revert to using internal DB
+            }
+        }
+        // Any of the two activities can complete the requirements for using ext DB
+        if (ACTIVITY_CHOOSE_DB_PATH == requestCode || ACTIVITY_FILEMGR_PERMISSION == requestCode) {
+            final String dirPath = prefs.getString(PREFS_EXTERNALDB_PATH, PREFS_EXTERNALDB_PATH_DEFAULT);
+            // if we received both the path and the file mgr permission
+            if (!dirPath.equalsIgnoreCase(PREFS_EXTERNALDB_PATH_DEFAULT) && isFileManager()) {
+                // Make sure this is only executed once
+                final Boolean extDbUsed = prefs.getBoolean(PREFS_EXTERNALDB_USED, PREFS_EXTERNALDB_USED_DEFAULT);
+                if (!extDbUsed) {
+                    // update display string in prefs GUI
+                    updatePathLabel(prefs);
+                    askCopyDb(getApplicationInfo().dataDir + File.separator + "databases" +
+                              File.separator + ShoppingDatabase.DATABASE_NAME,
+                              dirPath + File.separator + ShoppingDatabase.DATABASE_NAME);
+                    Editor editor = prefs.edit();
+                    editor.putBoolean(PREFS_EXTERNALDB_USED, true);
+                    editor.apply();
+                }
+            }
+        }
+    }
+
+    private void setInternalDb() {
+        SharedPreferences sp = getSharedPreferences(
+                "org.openintents.shopping_preferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(PreferenceActivity.PREFS_EXTERNALDB, PREFS_EXTERNALDB_DEFAULT);
+        editor.putBoolean(PreferenceActivity.PREFS_EXTERNALDB_USED, PREFS_EXTERNALDB_USED_DEFAULT);
+        editor.putString(PREFS_EXTERNALDB_PATH, PREFS_EXTERNALDB_PATH_DEFAULT);
+        editor.apply();
+        mExternaldb.setChecked(false);
+    }
+
+    public void askCopyDb(String from, String to) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.preference_externaldb_changed);
+        builder.setMessage(R.string.preference_externaldb_copy);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                copyDb(from, to);
+                dialog.dismiss();
+                quit(); // exit app so that change takes effect
+            }
+        });
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                quit(); // exit app so that change takes effect
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void copyDb(String from, String to) {
+        try {
+            File sourceFile = new File(from);
+            FileInputStream fis = new FileInputStream(sourceFile);
+            OutputStream os = new FileOutputStream(to);
+            byte[] buffer = new byte[1024];
+            int length = 0;
+            while ((length = fis.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            os.flush();
+            os.close();
+            fis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void quit() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                int pid = android.os.Process.myPid();
+                android.os.Process.killProcess(pid);
+                System.exit(0);
+            }
+        }, 1000);
+        // If killing the app without delay, pref changes do not get persisted.
+    }
+
+    /*
+      This method converts a URI of the form:
+      "content://com.android.externalstorage.documents/tree/primary:Documents/Shopping"
+      into a file path of the form:
+      "/storage/emulated/0/Documents/Shopping"
+     */
+    public String uriToFilePath(final Context context, final Uri uri) {
+        if ("content".equalsIgnoreCase(uri.getScheme()) &&
+                "com.android.externalstorage.documents".equalsIgnoreCase(uri.getAuthority())) {
+            Log.d(TAG, "Extracting lastPathSegment from URI: " + uri);
+            final String lastPathSegment = uri.getLastPathSegment();
+            final String[] split = lastPathSegment.split(":");
+            final String path = split[1];
+            final String result = Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + File.separator + path;
+            return result;
+        } else {
+            // This is an unexpected error case
+            Log.d(TAG, "Unknown type of URI: " + uri);
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
+    }
+
+    private void updatePathLabel(SharedPreferences sp) {
+        final String uriStr = sp.getString(PREFS_EXTERNALDB_PATH, PREFS_EXTERNALDB_PATH_DEFAULT);
+        String display;
+        if (uriStr.equals(PREFS_EXTERNALDB_PATH_DEFAULT)) {
+            display = getString(R.string.preference_externaldb_summary);
+        } else {
+            final Uri uri = Uri.parse(uriStr);
+            display = uri.getPath();
+        }
+        mExternaldb.setSummary(display);
+    }
+
+    public boolean isFileManager() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //Android is 11 (R) or above
+            return Environment.isExternalStorageManager();
+        } else {
+            //Below android 11
+            int write = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int read = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            return read == PackageManager.PERMISSION_GRANTED && write == PackageManager.PERMISSION_GRANTED;
         }
     }
 
@@ -550,6 +775,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
                                                 PREFS_SCREENLOCK_DEFAULT);
                                         editor.putBoolean(PREFS_SHOWINLOCKSCREEN,
                                                 PREFS_SHOWINLOCKSCREEN_DEFAULT);
+                                        editor.putBoolean(PREFS_EXTERNALDB,
+                                                PREFS_EXTERNALDB_DEFAULT);
+                                        editor.putBoolean(PREFS_EXTERNALDB_USED,
+                                                PREFS_EXTERNALDB_USED_DEFAULT);
+                                        editor.putString(PREFS_EXTERNALDB_PATH,
+                                                PREFS_EXTERNALDB_PATH_DEFAULT);
                                         editor.putBoolean(PREFS_QUICKEDITMODE,
                                                 PREFS_QUICKEDITMODE_DEFAULT);
                                         editor.putBoolean(PREFS_USE_FILTERS,

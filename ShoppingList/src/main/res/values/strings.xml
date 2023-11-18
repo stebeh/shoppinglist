@@ -214,6 +214,10 @@
     <string name="preference_screenlock_summary">Prevents the screen to be locked when checked.</string>
     <string name="preference_showinlockscreen_title">Show in lockscreen</string>
     <string name="preference_showinlockscreen_summary">Show the app when the screen is locked.</string>
+    <string name="preference_externaldb_title">External database</string>
+    <string name="preference_externaldb_summary">no (using internal storage)</string>
+    <string name="preference_externaldb_changed">"Database location changed"</string>
+    <string name="preference_externaldb_copy">"Do you want to copy the database to the new location?"</string>
     <string name="preference_usefilters_title">Filters</string>
     <string name="preference_usefilters_summary">Lists can be filtered by tags or stores.</string>
     <string name="preference_complete_by_list_title">Limit item name completion</string>
