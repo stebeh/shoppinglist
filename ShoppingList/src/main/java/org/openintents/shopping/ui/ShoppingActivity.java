@@ -1701,7 +1701,7 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
         }
 
         menu.findItem(MENU_MARK_ALL_ITEMS).setVisible(mItemsView.mNumUnchecked > 0);
-        menu.findItem(MENU_UNMARK_ALL_ITEMS).setVisible(mItemsView.mNumChecked > 0);
+        menu.findItem(MENU_UNMARK_ALL_ITEMS).setVisible(mItemsView.mNumChecked >= 0);
 
         menu.findItem(MENU_CLEAN_UP_LIST).setEnabled(
                 mItemsView.mNumChecked > 0).setVisible(!drawerOpen);
