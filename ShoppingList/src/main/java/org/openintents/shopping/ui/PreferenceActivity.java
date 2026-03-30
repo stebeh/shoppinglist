@@ -23,7 +23,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.DocumentsContract;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.text.InputType;
 import android.text.method.KeyListener;
 import android.text.method.TextKeyListener;

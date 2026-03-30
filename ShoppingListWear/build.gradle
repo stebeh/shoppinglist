@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
 
-
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
+    namespace "org.openintents.shopping.wear"
 
     defaultConfig {
         applicationId "org.openintents.shopping"
-        minSdkVersion 20
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk 20
+        targetSdk rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
     }
@@ -42,7 +41,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':ShoppingListLibrary')
-    implementation "com.google.android.support:wearable:$rootProject.ext.supportWearableVersion"
-    compileOnly "com.google.android.wearable:wearable:$rootProject.ext.supportWearableVersion"
-    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.playServicesVersion"
+    implementation 'com.google.android.support:wearable:2.9.0'
+    compileOnly 'com.google.android.wearable:wearable:2.9.0'
+    implementation 'com.google.android.gms:play-services-wearable:18.2.0'
 }

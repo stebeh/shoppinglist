@@ -1,11 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk rootProject.ext.compileSdkVersion
+    namespace "org.openintents.shopping.library"
 
     defaultConfig {
-        minSdkVersion 4
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk 4
+        targetSdk rootProject.ext.targetSdkVersion
     }
 
     buildTypes {

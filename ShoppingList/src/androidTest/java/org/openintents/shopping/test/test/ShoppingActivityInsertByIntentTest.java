@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.matcher.RootMatchers;
-import android.support.test.rule.ActivityTestRule;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.espresso.matcher.RootMatchers;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,12 +21,12 @@ import org.openintents.util.VersionUtils;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static android.support.test.espresso.Espresso.onData;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -61,7 +61,7 @@ public class ShoppingActivityInsertByIntentTest {
         SharedPreferences.Editor ed = prefs.edit();
         ed.putBoolean(PreferenceActivity.PREFS_HOLO_SEARCH, false);
         ed.putBoolean("eula_accepted", true);
-        ed.putInt("org.openintents.distribution.version_number_check", VersionUtils.getVersionCode(InstrumentationRegistry.getTargetContext()));
+        ed.putInt("org.openintents.distribution.version_number_check", VersionUtils.getVersionCode(InstrumentationRegistry.getInstrumentation().getTargetContext()));
         ed.commit();
     }
 

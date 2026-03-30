@@ -1,7 +1,7 @@
 package org.openintents.shopping.wear;
 
 import android.content.Context;
-import android.support.wearable.view.WearableListView;
+import androidx.wear.widget.WearableLinearLayoutManager;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
