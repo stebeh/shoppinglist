@@ -639,9 +639,14 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                copyDb(from, to);
                 dialog.dismiss();
-                quit(); // exit app so that change takes effect
+                File destFile = new File(to);
+                if (destFile.exists()) {
+                    askOverwriteDb(from, to);
+                } else {
+                    copyDb(from, to);
+                    quit();
+                }
             }
         });
         builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -653,6 +658,28 @@ public class PreferenceActivity extends android.preference.PreferenceActivity
         });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void askOverwriteDb(String from, String to) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(android.R.string.dialog_alert_title);
+        builder.setMessage(R.string.preference_externaldb_overwrite);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                copyDb(from, to);
+                dialog.dismiss();
+                quit();
+            }
+        });
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                quit();
+            }
+        });
+        builder.create().show();
     }
 
     public void copyDb(String from, String to) {

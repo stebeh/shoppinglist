@@ -1,0 +1,14 @@
+Notepad fails to compile with (in android studio):
+ Cannot locate tasks that match ':NotePad:compileJava' as task 'compileJava' is ambiguous in project ':NotePad'. Candidates are: 'compileDebugAndroidTestJavaWithJavac', 'compileDebugJavaWithJavac', 'compileDebugUnitTestJavaWithJavac', 'compileReleaseJavaWithJavac', 'compileReleaseUnitTestJavaWithJavac'.
+
+->
+That's an Android Studio run configuration issue, not a code compilation error. The project builds fine with Gradle (as we just saw). Android Studio is trying to run a plain Java task (compileJava) 
+instead of the Android-specific one (compileDebugJavaWithJavac).
+
+To fix it in Android Studio:
+1. Go to Run → Edit Configurations...
+2. Delete the existing run configuration for "NotePad"
+3. Click + → Android App
+4. Set the module to NotePad
+5. Click OK and run again
+

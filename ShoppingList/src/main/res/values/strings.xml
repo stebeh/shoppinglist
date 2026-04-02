@@ -218,6 +218,7 @@
     <string name="preference_externaldb_summary">no (using internal storage)</string>
     <string name="preference_externaldb_changed">"Database location changed"</string>
     <string name="preference_externaldb_copy">"Do you want to copy the database to the new location?"</string>
+    <string name="preference_externaldb_overwrite">"A database already exists at the new location. Overwrite it?"</string>
     <string name="preference_usefilters_title">Filters</string>
     <string name="preference_usefilters_summary">Lists can be filtered by tags or stores.</string>
     <string name="preference_complete_by_list_title">Limit item name completion</string>
