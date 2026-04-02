@@ -2217,12 +2217,17 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
         mItemsView.mCursorItems.requery();
         c.moveToPosition(position);
 
-        long listId = getSelectedListId();
+        long listId = Long.parseLong(mListUri.getLastPathSegment());
         if (false && listId < 0) {
             // No valid list - probably view is not active
             // and no item is selected.
             return;
         }
+
+        long itemId = c.getLong(mStringItemsITEMID);
+
+        // Copy per-store prices to equivalent stores in the target list
+        copyItemStoresToList(itemId, listId, targetListId);
 
         // Attach item to new list, preserving all other fields
         String containsId = c.getString(mStringItemsCONTAINSID);
@@ -2233,6 +2238,57 @@ public class ShoppingActivity extends DistributionLibraryFragmentActivity
                 null, null);
 
         mItemsView.requery();
+    }
+
+    /**
+     * Copy per-store prices from source list stores to target list stores.
+     * For each store in the source list that has an itemstore record for the
+     * given item, find or create a store with the same name in the target list
+     * and copy the price/aisle/stocks_item data.
+     */
+    private void copyItemStoresToList(long itemId, long sourceListId, long targetListId) {
+        // Get all itemstores for this item
+        Cursor c = getContentResolver().query(
+                ShoppingContract.ItemStores.CONTENT_URI,
+                new String[]{ShoppingContract.ItemStores.STORE_ID,
+                        ShoppingContract.ItemStores.PRICE,
+                        ShoppingContract.ItemStores.AISLE,
+                        ShoppingContract.ItemStores.STOCKS_ITEM},
+                "itemstores.item_id = ?",
+                new String[]{String.valueOf(itemId)}, null);
+        if (c == null) return;
+        try {
+            while (c.moveToNext()) {
+                long storeId = c.getLong(0);
+                String price = c.getString(1);
+                String aisle = c.getString(2);
+                int stocksItem = c.getInt(3);
+
+                // Check if this store belongs to the source list
+                Cursor storeCursor = getContentResolver().query(
+                        Stores.CONTENT_URI,
+                        new String[]{Stores.NAME},
+                        "_id = ? AND list_id = ?",
+                        new String[]{String.valueOf(storeId), String.valueOf(sourceListId)},
+                        null);
+                if (storeCursor == null) continue;
+                try {
+                    if (!storeCursor.moveToFirst()) continue;
+                    String storeName = storeCursor.getString(0);
+                    if (storeName == null) continue;
+
+                    long targetStoreId = ShoppingUtils.getStore(this, storeName, targetListId);
+                    if (targetStoreId >= 0) {
+                        ShoppingUtils.addItemToStore(this, itemId, targetStoreId,
+                                stocksItem != 0, aisle, price, false);
+                    }
+                } finally {
+                    storeCursor.close();
+                }
+            }
+        } finally {
+            c.close();
+        }
     }
 
     /**
