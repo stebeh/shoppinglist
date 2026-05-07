@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "org.openintents.shopping"
-        versionName "2.2.1a"
+        versionName "2.2.1b"
         versionCode 100221
         minSdk 21
         targetSdk rootProject.ext.targetSdkVersion

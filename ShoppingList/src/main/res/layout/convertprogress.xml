@@ -18,7 +18,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:gravity="center_vertical" android:layout_height="fill_parent">
+    android:gravity="center_vertical" android:layout_height="fill_parent"
+    android:fitsSystemWindows="true">
 <TextView android:id="@+id/TextView01" android:layout_height="wrap_content" android:text="@string/converting" android:layout_width="fill_parent" android:gravity="center_horizontal"></TextView>
 <ProgressBar android:layout_height="wrap_content" android:id="@+id/Progress"  style="?android:attr/progressBarStyleHorizontal" android:layout_width="fill_parent" android:progress="0" android:max="10" android:secondaryProgress="0"></ProgressBar>
 </LinearLayout>
