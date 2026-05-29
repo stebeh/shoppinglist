@@ -18,6 +18,7 @@
     android:id="@+id/background"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:minWidth="400dp"
     android:orientation="vertical">
     <!-- android:background="@drawable/shoppinglist01d" -->
 

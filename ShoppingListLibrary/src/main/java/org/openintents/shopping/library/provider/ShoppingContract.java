@@ -827,6 +827,14 @@ public abstract class ShoppingContract {
          * </P>
          */
         public static final String STOCKS_ITEM = "stocks_item";
+
+        /**
+         * The date when the price was last entered/updated.
+         * <p/>
+         * Type: INTEGER (long, milliseconds since epoch)
+         * </P>
+         */
+        public static final String PRICE_DATE = "price_date";
     }
 
     /**

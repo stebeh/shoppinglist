@@ -41,7 +41,7 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
      * 1.2.7-beta 8: Release 1.2.7-beta 9: Release 1.3.0 10: Release 1.3.1-beta
      * 11: Release 1.4.0-beta
      */
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     ShoppingDatabase(Context context) {
         super(new DatabaseContext(context), DATABASE_NAME, null, DATABASE_VERSION);
@@ -107,6 +107,7 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
                 + "stocks_item INTEGER DEFAULT 1," // V10
                 + "aisle INTEGER," // V5
                 + "price INTEGER," // V5
+                + "price_date INTEGER," // V14
                 + "created INTEGER," // V5
                 + "modified INTEGER" // V5
                 + ");");
@@ -291,6 +292,14 @@ public class ShoppingDatabase extends SQLiteOpenHelper {
                     try {
                         db.execSQL("ALTER TABLE lists ADD COLUMN "
                                 + Lists.ITEMS_SORT + " INTEGER;");
+                    } catch (SQLException e) {
+                        Log.e(ShoppingProvider.TAG, "Error executing SQL: ", e);
+                    }
+                    // NO break;
+                case 13:
+                    try {
+                        db.execSQL("ALTER TABLE itemstores ADD COLUMN "
+                                + ItemStores.PRICE_DATE + " INTEGER;");
                     } catch (SQLException e) {
                         Log.e(ShoppingProvider.TAG, "Error executing SQL: ", e);
                     }

@@ -46,10 +46,11 @@ public class StoreListView extends ListView {
     private final static int cursorColumnPRICE = 3;
     private final static int cursorColumnAISLE = 4;
     private final static int cursorColumnSTORE_ID = 5;
+    private final static int cursorColumnPRICE_DATE = 6;
     private final String[] mStringItems = new String[]{
             "itemstores." + ItemStores._ID, Stores.NAME,
             ItemStores.STOCKS_ITEM, ItemStores.PRICE, ItemStores.AISLE,
-            "stores._id as store_id"};
+            "stores._id as store_id", ItemStores.PRICE_DATE};
     public int mPriceVisibility;
     public String mTextTypeface;
     public float mTextSize;
@@ -237,9 +238,9 @@ public class StoreListView extends ListView {
                 // Give the cursor to the list adapter
                 mCursorItemstores,
                 // Map the IMAGE and NAME to...
-                new String[]{Stores.NAME, ItemStores.PRICE, ItemStores.AISLE},
+                new String[]{Stores.NAME, ItemStores.PRICE, ItemStores.AISLE, ItemStores.PRICE_DATE},
                 // the view defined in the XML template
-                new int[]{R.id.name, R.id.price, R.id.aisle});
+                new int[]{R.id.name, R.id.price, R.id.aisle, R.id.price_date});
         setAdapter(adapter);
 
         return mCursorItemstores;
@@ -346,6 +347,9 @@ public class StoreListView extends ListView {
         Uri uri = Uri.withAppendedPath(ItemStores.CONTENT_URI, itemstore_id);
         ContentValues cv = new ContentValues();
         cv.put(mStringItems[column], new_val);
+        if (column == cursorColumnPRICE) {
+            cv.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
+        }
         getContext().getContentResolver().update(uri, cv, null, null);
 
         // see comment above
@@ -419,6 +423,9 @@ public class StoreListView extends ListView {
             v = (EditText) view.findViewById(R.id.aisle);
             v.addTextChangedListener(new EditTextWatcher(v, cursorColumnAISLE));
             v.setVisibility(mPriceVisibility);
+
+            TextView tv = (TextView) view.findViewById(R.id.price_date);
+            tv.setVisibility(mPriceVisibility);
 
             return view;
         }
@@ -503,6 +510,16 @@ public class StoreListView extends ListView {
                     ((TextView) view).setText(text);
                     return true;
                 }
+            } else if (id == R.id.price_date) {
+                long dateMillis = cursor.getLong(cursorColumnPRICE_DATE);
+                if (dateMillis != 0) {
+                    String text = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT)
+                            .format(new java.util.Date(dateMillis));
+                    ((TextView) view).setText(text);
+                } else {
+                    ((TextView) view).setText("");
+                }
+                return true;
             }
             // let SimpleCursorAdapter handle the binding.
             return false;

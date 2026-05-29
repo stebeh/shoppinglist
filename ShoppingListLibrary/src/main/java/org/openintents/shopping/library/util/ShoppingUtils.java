@@ -510,6 +510,8 @@ public class ShoppingUtils {
             if (!TextUtils.isEmpty(aisle))
                 values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
+            if (!TextUtils.isEmpty(price))
+                values.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
             try {
                 Uri uri = Uri.withAppendedPath(ItemStores.CONTENT_URI,
                         String.valueOf(id));
@@ -532,6 +534,8 @@ public class ShoppingUtils {
             values.put(ItemStores.PRICE, price);
             values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
+            if (!TextUtils.isEmpty(price))
+                values.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
             try {
                 Uri uri = context.getContentResolver().insert(
                         ItemStores.CONTENT_URI, values);
