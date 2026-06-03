@@ -522,7 +522,7 @@ public class ShoppingUtils {
             if (!TextUtils.isEmpty(aisle))
                 values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
-            if (!TextUtils.isEmpty(price)) {
+            if (!TextUtils.isEmpty(price) || !TextUtils.isEmpty(aisle)) {
                 if (priceDate != 0) {
                     values.put(ItemStores.PRICE_DATE,
                             priceDate > 0 ? priceDate : System.currentTimeMillis());
@@ -550,7 +550,7 @@ public class ShoppingUtils {
             values.put(ItemStores.PRICE, price);
             values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
-            if (!TextUtils.isEmpty(price)) {
+            if (!TextUtils.isEmpty(price) || !TextUtils.isEmpty(aisle)) {
                 if (priceDate != 0) {
                     values.put(ItemStores.PRICE_DATE,
                             priceDate > 0 ? priceDate : System.currentTimeMillis());
