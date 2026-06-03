@@ -509,8 +509,10 @@ public class StoreListView extends ListView {
                 if (price != 0) {
                     String text = PriceConverter.getStringFromCentPrice(price);
                     ((TextView) view).setText(text);
-                    return true;
+                } else {
+                    ((TextView) view).setText("");
                 }
+                return true;
             } else if (id == R.id.price_date) {
                 long dateMillis = cursor.getLong(cursorColumnPRICE_DATE);
                 if (dateMillis != 0) {
