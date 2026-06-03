@@ -486,6 +486,18 @@ public class ShoppingUtils {
     public static long addItemToStore(Context context, final long itemId,
                                       final long storeId, final boolean stocksItem, final String aisle,
                                       final String price, boolean known_new) {
+        return addItemToStore(context, itemId, storeId, stocksItem, aisle, price, known_new, -1);
+    }
+
+    public static long addItemToStore(Context context, final long itemId,
+                                      final long storeId, final String aisle,
+                                      final String price, boolean known_new, long priceDate) {
+        return addItemToStore(context, itemId, storeId, true, aisle, price, known_new, priceDate);
+    }
+
+    public static long addItemToStore(Context context, final long itemId,
+                                      final long storeId, final boolean stocksItem, final String aisle,
+                                      final String price, boolean known_new, long priceDate) {
         long id = -1;
         Cursor existingItems = null;
 
@@ -510,8 +522,12 @@ public class ShoppingUtils {
             if (!TextUtils.isEmpty(aisle))
                 values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
-            if (!TextUtils.isEmpty(price))
-                values.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
+            if (!TextUtils.isEmpty(price)) {
+                if (priceDate != 0) {
+                    values.put(ItemStores.PRICE_DATE,
+                            priceDate > 0 ? priceDate : System.currentTimeMillis());
+                }
+            }
             try {
                 Uri uri = Uri.withAppendedPath(ItemStores.CONTENT_URI,
                         String.valueOf(id));
@@ -534,8 +550,12 @@ public class ShoppingUtils {
             values.put(ItemStores.PRICE, price);
             values.put(ItemStores.AISLE, aisle);
             values.put(ItemStores.STOCKS_ITEM, stocksItem);
-            if (!TextUtils.isEmpty(price))
-                values.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
+            if (!TextUtils.isEmpty(price)) {
+                if (priceDate != 0) {
+                    values.put(ItemStores.PRICE_DATE,
+                            priceDate > 0 ? priceDate : System.currentTimeMillis());
+                }
+            }
             try {
                 Uri uri = context.getContentResolver().insert(
                         ItemStores.CONTENT_URI, values);

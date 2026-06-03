@@ -289,7 +289,7 @@ public class ExportCsv {
     }
 
     // Deal with per-store aisles and prices from column 11.
-    // example value for column 11:    Big Y=/0.50;BJ's=11/0.42
+    // example value for column 11:    Big Y=/0.50/1748000000000;BJ's=11/0.42/1748000000000
     private String getHandyShopperPerStoreInfo(long itemId) {
         String perStoreInfo = "";
 
@@ -298,7 +298,8 @@ public class ExportCsv {
                 new String[]{ShoppingContract.ItemStores.ITEM_ID,
                         ShoppingContract.ItemStores.STORE_ID,
                         ShoppingContract.ItemStores.AISLE,
-                        ShoppingContract.ItemStores.PRICE},
+                        ShoppingContract.ItemStores.PRICE,
+                        ShoppingContract.ItemStores.PRICE_DATE},
                 ShoppingContract.ItemStores.ITEM_ID + " = ?",
                 new String[]{"" + itemId}, null);
         if (c1 != null) {
@@ -306,6 +307,7 @@ public class ExportCsv {
                 long storeId = c1.getLong(c1.getColumnIndexOrThrow(ShoppingContract.ItemStores.STORE_ID));
                 String aisle = c1.getString(c1.getColumnIndexOrThrow(ShoppingContract.ItemStores.AISLE));
                 long price = c1.getLong(c1.getColumnIndexOrThrow(ShoppingContract.ItemStores.PRICE));
+                long priceDate = c1.getLong(c1.getColumnIndexOrThrow(ShoppingContract.ItemStores.PRICE_DATE));
                 String pricestring = "" + (double) price / 100.d;
 
                 Uri uri2 = ContentUris.withAppendedId(ShoppingContract.Stores.CONTENT_URI, storeId);
@@ -317,7 +319,7 @@ public class ExportCsv {
                         String storeName = c2.getString(c2.getColumnIndexOrThrow(ShoppingContract.Stores.NAME));
 
                         if (price != 0) {
-                            String info = storeName + "=" + aisle + "/" + pricestring;
+                            String info = storeName + "=" + aisle + "/" + pricestring + "/" + priceDate;
 
                             if (perStoreInfo.equals("")) {
                                 perStoreInfo = info;

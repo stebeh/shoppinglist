@@ -196,6 +196,14 @@ public class ImportCsv {
                     if (aisle_price.length > 1) {
                         store_price = convert_hs_price(aisle_price[1]);
                     }
+                    long priceDate = 0;
+                    if (aisle_price.length > 2) {
+                        try {
+                            priceDate = Long.parseLong(aisle_price[2]);
+                        } catch (NumberFormatException e) {
+                            // ignore
+                        }
+                    }
 
                     Long storeId = seen_stores.get(store_name);
                     if (storeId == null) {
@@ -203,7 +211,7 @@ public class ImportCsv {
                         seen_stores.put(store_name, storeId);
                     }
                     item_stores.put(store_name, storeId);
-                    long item_store = ShoppingUtils.addItemToStore(mContext, itemId, storeId, aisle, store_price, mDuplicate);
+                    long item_store = ShoppingUtils.addItemToStore(mContext, itemId, storeId, aisle, store_price, mDuplicate, priceDate);
                 }
             }
 
