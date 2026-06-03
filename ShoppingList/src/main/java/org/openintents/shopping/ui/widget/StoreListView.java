@@ -180,12 +180,14 @@ public class StoreListView extends ListView {
                 }
             } else {
                 // real record, restore its values.
-                // long itemstore_id = cv.getAsLong("_id");
-                boolean has_item = cv.getAsBoolean("stocks_item");
-                String price = cv.getAsString("price");
-                String aisle = cv.getAsString("aisle");
-                ShoppingUtils.addItemToStore(getContext(), mItemId,
-                        Long.parseLong(storeId), has_item, aisle, price, false);
+                String itemstoreId = cv.getAsString("_id");
+                ContentValues values = new ContentValues(4);
+                values.put(ItemStores.STOCKS_ITEM, cv.getAsBoolean("stocks_item"));
+                values.put(ItemStores.PRICE, cv.getAsString("price"));
+                values.put(ItemStores.AISLE, cv.getAsString("aisle"));
+                values.put(ItemStores.PRICE_DATE, cv.getAsLong("price_date"));
+                Uri uri = Uri.withAppendedPath(ItemStores.CONTENT_URI, itemstoreId);
+                getContext().getContentResolver().update(uri, values, null, null);
             }
         }
     }
@@ -289,6 +291,7 @@ public class StoreListView extends ListView {
 
         ContentValues values = new ContentValues();
         values.put(ItemStores.STOCKS_ITEM, newstatus);
+        values.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
         if (debug) {
             Log.d(TAG, "update row " + itemstore_id + ", newstatus "
                     + newstatus);
@@ -347,9 +350,7 @@ public class StoreListView extends ListView {
         Uri uri = Uri.withAppendedPath(ItemStores.CONTENT_URI, itemstore_id);
         ContentValues cv = new ContentValues();
         cv.put(mStringItems[column], new_val);
-        if (column == cursorColumnPRICE) {
-            cv.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
-        }
+        cv.put(ItemStores.PRICE_DATE, System.currentTimeMillis());
         getContext().getContentResolver().update(uri, cv, null, null);
 
         // see comment above
